@@ -36,6 +36,11 @@ fix_2026-11-12_links:
   - Change log text no longer points to the "Check Drive for new uploads" button (needs claude.ai Drive connector; hidden here)
   - audited: 5 legislation/WorkSafe URLs 200; 419 Drive file IDs all exist (108 public, 311 need Drive sign-in/access); every external link target=_blank; Wix iframe unsandboxed
   - verified live Pages + inside Wix (Playwright): all 6 tabs, Back button, New Document, Start review form, Details, paging, Excel export, Compare/Back, Record decision, legal + filing filters, Drive/legal links open new tabs, no page errors
+coverage_check_2026-11-12:
+  drive_vs_site: all 419 Drive files (3 Nov snapshot) are on the site - 389 in the 268 register docs, 30 (26 DELETE, 4 RECORD) only on Filing review. Live Drive not checkable (folders private; Drive connector auth fails)
+  peopletray_vs_site: live library crawl 12 Nov = 146 files / 37 folders (25 Oct: 145; +Organisation Chart - 261101.pdf, SOP-001-1 -> -2). 97 on site (6 under other names), 49 on neither site nor Drive
+  report: C:/Users/nn171/Downloads/PeopleTray_vs_Document_Control_2026-11-12.xlsx
+  pt_session: private/pt-profile = signed-in Chromium profile (Neil logged in himself; cookies only, gitignored). Re-sign-in needed when it expires
 wix: LIVE www.emergencyservicesaustralia.com.au/nmgdocumentcontrol (Neil published 2026-11-12)
 phase: live
 next:

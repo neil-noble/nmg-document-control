@@ -23,6 +23,10 @@ const swaps = [
   ['Saved on this page only (open the page on claude.ai to save it).', 'Saved on this page only (reload and enter the team password to save it).'],
   ['Downloads are not available in this view. Open the page on claude.ai in a browser.', 'The download could not start. Try again in Chrome or Edge.'],
 ];
+// Wix page already shows the NMG logo above the embed (Neil 2026-11-12): drop the hero logo.
+const nLogo = (body.match(/<div class="hm-logo"><img [^>]*><\/div>\s*/g) || []).length;
+if (nLogo !== 1) throw new Error('expected 1 hero logo, found ' + nLogo);
+body = body.replace(/<div class="hm-logo"><img [^>]*><\/div>\s*/, '');
 for (const [a, b] of swaps) { if (!body.includes(a)) console.warn('wording not found:', a); body = body.split(a).join(b); }
 
 // 3. Shim: window.claude.use(...) backed by Firebase (db, user) and a plain browser download.

@@ -21,12 +21,21 @@ const swaps = [
   ["Answers can't be saved in this view. Open the page on claude.ai to save them.", "Answers can't be saved right now. Reload the page and enter the team password again."],
   ['Not saved: open on claude.ai.', 'Not saved: reload and enter the team password.'],
   ['Saved on this page only (open the page on claude.ai to save it).', 'Saved on this page only (reload and enter the team password to save it).'],
+  // The live Drive check needs claude.ai's Google Drive connector; its button is hidden here.
+  ['Use <b>Check Drive for new uploads</b> (top right) to refresh.', 'The live Drive check only works in the original claude.ai version; this copy shows the Drive as at the date in the header.'],
+  ['Checks the drive for new PeopleTray downloads and new uploads since the build of', 'No live check on this copy. Drive contents are as at the build of'],
   ['Downloads are not available in this view. Open the page on claude.ai in a browser.', 'The download could not start. Try again in Chrome or Edge.'],
 ];
 // Wix page already shows the NMG logo above the embed (Neil 2026-11-12): drop the hero logo.
 const nLogo = (body.match(/<div class="hm-logo"><img [^>]*><\/div>\s*/g) || []).length;
 if (nLogo !== 1) throw new Error('expected 1 hero logo, found ' + nLogo);
 body = body.replace(/<div class="hm-logo"><img [^>]*><\/div>\s*/, '');
+// Ctrl+S rewrote the in-page tab links (#home, #dashboard, ...) as absolute URLs to the claude.ai
+// frame host, so clicking a tab left the page ("refused to connect"). Put them back to bare hashes.
+const nFrame = (body.match(/https:\/\/[\w-]+\.frame\.claudeusercontent\.com\/[^"'#\s]*(#[\w-]*)/g) || []).length;
+body = body.replace(/https:\/\/[\w-]+\.frame\.claudeusercontent\.com\/[^"'#\s]*(#[\w-]*)/g, '$1');
+if (/claudeusercontent\.com|claude\.ai\//.test(body)) throw new Error('claude.ai URL still in body');
+console.log('tab links fixed:', nFrame);
 for (const [a, b] of swaps) { if (!body.includes(a)) console.warn('wording not found:', a); body = body.split(a).join(b); }
 
 // 3. Shim: window.claude.use(...) backed by Firebase (db, user) and a plain browser download.

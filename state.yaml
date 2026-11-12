@@ -30,6 +30,12 @@ changes_2026-11-12:
   - hero NMG logo removed (Wix page header already shows it) - build.js strips div.hm-logo
   - loader password box top-aligned (tall Wix embed hid it)
   - team password set by Neil (see private/team-code.txt); Neil warned it is guessable offline
+fix_2026-11-12_links:
+  - cause: Ctrl+S rewrote the 6 top tabs (#home #dashboard #quality #legal #filing #changes) as absolute https://<id>.frame.claudeusercontent.com/... URLs -> clicking a tab left the page ("refused to connect")
+  - build.js now rewrites any *.frame.claudeusercontent.com/...#x href back to #x and fails the build if any claude.ai URL remains
+  - Change log text no longer points to the "Check Drive for new uploads" button (needs claude.ai Drive connector; hidden here)
+  - audited: 5 legislation/WorkSafe URLs 200; 419 Drive file IDs all exist (108 public, 311 need Drive sign-in/access); every external link target=_blank; Wix iframe unsandboxed
+  - verified live Pages + inside Wix (Playwright): all 6 tabs, Back button, New Document, Start review form, Details, paging, Excel export, Compare/Back, Record decision, legal + filing filters, Drive/legal links open new tabs, no page errors
 wix: LIVE www.emergencyservicesaustralia.com.au/nmgdocumentcontrol (Neil published 2026-11-12)
 phase: live
 next:

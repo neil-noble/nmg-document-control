@@ -1,0 +1,36 @@
+rules_version = '2';
+// SHARED Firebase project nmg-hygiene-planner. This file is identical in BOTH repos:
+//   C:\claude\NMG Hygiene Planner\firestore.rules  and  C:\claude\NMG Document Control\firestore.rules
+// Deploying either one replaces the whole ruleset, so edit both together.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // --- NMG Hygiene Planner: anyone may read; only the hygiene team login may write well-formed entries.
+    match /years/{year}/entries/{key} {
+      allow read: if true;
+      allow create, update: if request.auth != null
+        && request.auth.token.email == 'team@nmg-hygiene-planner.web.app'
+        && year.matches('^20[0-9][0-9]$')
+        && key.size() <= 40
+        && request.resource.data.keys().hasOnly(['done', 'by', 'at', 'note'])
+        && request.resource.data.done is bool
+        && (request.resource.data.by == null || (request.resource.data.by is string && request.resource.data.by.size() <= 12))
+        && (request.resource.data.at == null || (request.resource.data.at is string && request.resource.data.at.size() <= 40))
+        && request.resource.data.note is string && request.resource.data.note.size() <= 300;
+      allow delete: if false;
+    }
+    // --- NMG Document Control: private. Only the doccontrol team login may read or write.
+    match /apps/doccontrol/{col}/{id} {
+      allow read: if request.auth != null && request.auth.token.email == 'doccontrol@nmg-hygiene-planner.web.app';
+      allow create, update: if request.auth != null
+        && request.auth.token.email == 'doccontrol@nmg-hygiene-planner.web.app'
+        && col in ['decisions', 'settings']
+        && id.size() <= 200;
+      allow delete: if request.auth != null
+        && request.auth.token.email == 'doccontrol@nmg-hygiene-planner.web.app'
+        && col == 'decisions';
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

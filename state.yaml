@@ -1,0 +1,29 @@
+project: NMG Document Control
+path: C:\claude\NMG Document Control
+created: 2026-11-12
+goal: host a colleague's "Document Control System" Claude artifact on Neil's Wix site
+source_artifact: https://claude.ai/artifact/51pGNkp5cg5TzLffgxZi6G  # colleague-owned; Claude can't read it in bypass mode (consent pop-up) -> Neil saved it with Ctrl+S
+source_files: private/source/  # gitignored, PLAINTEXT internal data; inner page = "Document Control System_files/saved_resource.html"
+snapshot: register data as at 2026-11-03, QC 2026-11-10, legal 2026-11-10 (frozen copy; does NOT follow colleague's later edits -> re-save + rebuild)
+decisions_2026-11-12:
+  - access: whole page AES-encrypted behind one team password (Neil chose over Wix-password/public). Content is internal: 268 docs, Drive file IDs, QC findings, legal register
+  - saving: Firebase (Neil chose over read-only)
+  - wix_url: https://www.emergencyservicesaustralia.com.au/nmgdocumentcontrol
+build:
+  cmd: node tools/build.js   # -> docs/index.html (encrypted) + private/plain.html (local preview, gitignored)
+  what: strips claude.ai frame runtime; window.claude.use() shim -> db=Firestore doc apps/doccontrol, user=owner/canEdit when signed in, downloads=blob link, mcp/permissions=null (Drive live check off)
+  crypto: gzip -> AES-256-GCM, PBKDF2-SHA256 310k; loader tools/loader.html; password kept in sessionStorage for the tab
+  firebase_sdk: compat 10.14.1 loaded by the loader page (not document.write -> Chrome blocks on slow links)
+backend:
+  firebase_project: nmg-hygiene-planner (SHARED with NMG Hygiene Planner; avoids console-only Auth setup for a new project)
+  data: apps/doccontrol/{decisions|settings|workflow}/{id}; workflow is read-only (page never writes it; on claude.ai reviews came from colleague's own DB -> starts empty here)
+  auth: doccontrol@nmg-hygiene-planner.web.app, password = team password (private/team-code.txt, NEVER commit)
+  rules: firestore.rules identical in BOTH repos; deploying either replaces the whole ruleset. node private/setup.js <token> rules|account|both (token: node "C:\claude\NMG Hygiene Planner\private\fbtok.js"); setup.js refuses if the two files differ
+  change_password: edit private/team-code.txt -> setup.js account -> node tools/build.js -> commit+push docs/index.html
+verified_2026-11-12_local: wrong pw rejected; right pw opens + signs in (db, canEdit); save seen from 2nd browser; delete ok; workflow write denied; unauthenticated read denied; Excel export downloads; console clean; renders with fonts
+hosting:
+  repo: neil-noble/nmg-document-control (public; content encrypted) Pages master:/docs
+phase: publishing
+next:
+  - push + enable Pages + verify live
+  - Neil: add Wix page /nmgdocumentcontrol (Embed a site -> pages_url), share team password with users

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en-AU"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>NMG Document Control</title>
+<link rel="icon" href="data:,">
+<style>
+:root{--bg:#ECEBE6;--tile:#fff;--fg:#22272B;--muted:#5E666C;--line:#DAD8CF;--navy:#083045;--on:#fff;--bad:#B23A32}
+@media (prefers-color-scheme:dark){:root{--bg:#0A1820;--tile:#11232D;--fg:#E6E8E4;--muted:#9AA7AD;--line:#24404D;--navy:#0F3346;--on:#F1EEE4;--bad:#F07D73;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;padding:16px}
+form{width:100%;max-width:380px;background:var(--tile);border:1px solid var(--line);border-top:4px solid var(--navy);border-radius:8px;padding:24px;display:grid;gap:12px}
+h1{margin:0;font-size:20px}
+p{margin:0;color:var(--muted);font-size:14px}
+label{font-weight:600;font-size:14px}
+input{width:100%;padding:10px 12px;font:inherit;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button{padding:10px 14px;font:inherit;font-weight:600;border:0;border-radius:6px;background:var(--navy);color:var(--on);cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}
+#msg{min-height:1.4em;color:var(--bad);font-size:14px}
+</style></head><body>
+<form id="f" autocomplete="off">
+  <h1>NMG Document Control</h1>
+  <p>Crown Prince controlled-document register. Enter the team password to open it.</p>
+  <label for="pw">Team password</label>
+  <input id="pw" type="password" required autofocus>
+  <button id="go" type="submit">Open</button>
+  <div id="msg" role="status" aria-live="polite"></div>
+</form>
+<!--FIREBASE-->
+<script>
+const P=/*PAYLOAD*/null;
+const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function open(pw){
+  const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
+  const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b64(P.s),iterations:P.it,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
+  const gz=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64(P.i)},key,b64(P.d)); // throws on wrong password
+  const html=await new Response(new Blob([gz]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+  try{sessionStorage.setItem("dc-pw",pw)}catch(e){}
+  window.__DCK=pw;
+  document.open();document.write(html);document.close();
+}
+const f=document.getElementById("f"),msg=document.getElementById("msg"),go=document.getElementById("go");
+f.addEventListener("submit",async e=>{
+  e.preventDefault();go.disabled=true;msg.textContent="";
+  try{await open(document.getElementById("pw").value)}
+  catch(err){go.disabled=false;msg.textContent=err&&err.name==="OperationError"?"That password is not right.":"This browser can't open the page. Try the latest Chrome or Edge."}
+});
+(async()=>{let pw=null;try{pw=sessionStorage.getItem("dc-pw")}catch(e){}
+  if(pw){try{await open(pw)}catch(e){try{sessionStorage.removeItem("dc-pw")}catch(_){}}}})();
+</script>
+</body></html>

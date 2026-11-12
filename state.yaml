@@ -26,6 +26,11 @@ hosting:
   pages_url: https://neil-noble.github.io/nmg-document-control/
   verified_2026-11-12_live: page == committed blob; password opens, Firebase sign-in + save/read ok, console clean (test doc removed)
   note: local docs/index.html is LF-vs-CRLF different from the blob; compare against `git show HEAD:docs/index.html`
-phase: live-on-pages (Wix step pending)
+changes_2026-11-12:
+  - hero NMG logo removed (Wix page header already shows it) - build.js strips div.hm-logo
+  - loader password box top-aligned (tall Wix embed hid it)
+  - team password set by Neil (see private/team-code.txt); Neil warned it is guessable offline
+wix: LIVE www.emergencyservicesaustralia.com.au/nmgdocumentcontrol (Neil published 2026-11-12)
+phase: live
 next:
-  - Neil: add Wix page /nmgdocumentcontrol (Embed a site -> pages_url), share team password with users
+  - Neil: share team password with users

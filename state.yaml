@@ -23,7 +23,9 @@ backend:
 verified_2026-11-12_local: wrong pw rejected; right pw opens + signs in (db, canEdit); save seen from 2nd browser; delete ok; workflow write denied; unauthenticated read denied; Excel export downloads; console clean; renders with fonts
 hosting:
   repo: neil-noble/nmg-document-control (public; content encrypted) Pages master:/docs
-phase: publishing
+  pages_url: https://neil-noble.github.io/nmg-document-control/
+  verified_2026-11-12_live: page == committed blob; password opens, Firebase sign-in + save/read ok, console clean (test doc removed)
+  note: local docs/index.html is LF-vs-CRLF different from the blob; compare against `git show HEAD:docs/index.html`
+phase: live-on-pages (Wix step pending)
 next:
-  - push + enable Pages + verify live
   - Neil: add Wix page /nmgdocumentcontrol (Embed a site -> pages_url), share team password with users
